@@ -48,7 +48,7 @@ if st.session_state['button'] == True:
 	comments = []
 	favorites = []
 	while True:
-		response = youtube.search().list(
+		response_id = youtube.search().list(
 			q=query, 
 			order=selected_order,
 			part='id', 
@@ -57,7 +57,7 @@ if st.session_state['button'] == True:
 			pageToken=nextToken
 		).execute()
 	
-		ids = [i['id']['videoId'] for i in response['items']]
+		ids = [i['id']['videoId'] for i in response_id['items']]
 		response = youtube.videos().list(
 			part='statistics, snippet',
 			id=ids
@@ -88,11 +88,11 @@ if st.session_state['button'] == True:
 			favorites += [0]*batch_length
 			
 		try:
-			nextToken = response['nextPageToken']
+			nextToken = response_id['nextPageToken']
 		except:
 			break
 
-		if len(response['items']) > 1000:
+		if len(views) > 1000:
 			break
 	
 	df = pd.DataFrame({
