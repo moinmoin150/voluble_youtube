@@ -58,39 +58,40 @@ if st.session_state['button'] == True:
 		).execute()
 	
 		ids = [i['id']['videoId'] for i in response_id['items']]
-		response = youtube.videos().list(
-			part='statistics, snippet',
-			id=ids
-		).execute()
+		if len(ids)>0:
+			response = youtube.videos().list(
+				part='statistics, snippet',
+				id=ids
+			).execute()
 
-		batch_length = len([i['id'] for i in response['items']])
+			batch_length = len([i['id'] for i in response['items']])
 
-		videoId += [i['id'] for i in response['items']]
-		channelId += [i['snippet']['channelId'] for i in response['items']]
-		title += [i['snippet']['title'] for i in response['items']]
-		publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
-		description += [i['snippet']['description'] for i in response['items']]
-		try:
-			views += [i['statistics']['viewCount'] for i in response['items']]
-		except:
-			views += [0]*batch_length
-		try:
-			likes += [i['statistics']['likeCount'] for i in response['items']]
-		except:
-			likes += [0]*batch_length
-		try:
-			comments += [i['statistics']['commentCount'] for i in response['items']]
-		except:
-			comments += [0]*batch_length
-		try:
-			favorites += [i['statistics']['favoriteCount'] for i in response['items']]
-		except:
-			favorites += [0]*batch_length
-			
-		try:
-			nextToken = response_id['nextPageToken']
-		except:
-			break
+			videoId += [i['id'] for i in response['items']]
+			channelId += [i['snippet']['channelId'] for i in response['items']]
+			title += [i['snippet']['title'] for i in response['items']]
+			publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
+			description += [i['snippet']['description'] for i in response['items']]
+			try:
+				views += [i['statistics']['viewCount'] for i in response['items']]
+			except:
+				views += [0]*batch_length
+			try:
+				likes += [i['statistics']['likeCount'] for i in response['items']]
+			except:
+				likes += [0]*batch_length
+			try:
+				comments += [i['statistics']['commentCount'] for i in response['items']]
+			except:
+				comments += [0]*batch_length
+			try:
+				favorites += [i['statistics']['favoriteCount'] for i in response['items']]
+			except:
+				favorites += [0]*batch_length
+
+			try:
+				nextToken = response_id['nextPageToken']
+			except:
+				break
 
 		if len(views) > 1000:
 			break
