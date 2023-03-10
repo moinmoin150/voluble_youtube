@@ -38,6 +38,7 @@ if st.session_state.get('button') != True:
     st.session_state['button'] = search_btn
 if st.session_state['button'] == True:
 	nextToken = None
+	final_response = []
 	while True:
 		response = youtube.search().list(
 			q=query, 
@@ -47,6 +48,7 @@ if st.session_state['button'] == True:
 			maxResults=50, 
 			pageToken=nextToken
 		).execute()
+		final_response += response['items']
 
 		try:
 			nextToken = response['nextPageToken']
@@ -55,9 +57,9 @@ if st.session_state['button'] == True:
 
 		if len(response['items']) > 1000:
 			break
-	st.write('Found ', len(response['items']), ' results')
+	st.write('Found ', len(final_response), ' results')
 	
-	ids = [i['id']['videoId'] for i in response['items']]
+	ids = [i['id']['videoId'] for i in final_response]
 	response = youtube.videos().list(
 		part='statistics, snippet',
 		id=ids
