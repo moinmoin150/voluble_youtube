@@ -87,8 +87,8 @@ if st.session_state['button'] == True:
 	})
 	
 	st.subheader("Preview first 50 rows:")
-        st.dataframe(df.head(50))
-        download = FileDownloader(df.to_csv(),file_ext='csv').download_data()
+	st.dataframe(df.head(50))
+	download = FileDownloader(df.to_csv(),file_ext='csv').download_data()
 	
 	
 	
