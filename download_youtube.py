@@ -77,9 +77,18 @@ if st.session_state['button'] == True:
 		publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
 		description += [i['snippet']['description'] for i in response['items']]
 		views += [i['statistics']['viewCount'] for i in response['items']]
-		likes += [i['statistics']['likeCount'] for i in response['items']]
-		comments += [i['statistics']['commentCount'] for i in response['items']]
-		favorites += [i['statistics']['favoriteCount'] for i in response['items']]
+		try:
+			likes += [i['statistics']['likeCount'] for i in response['items']]
+		except:
+			likes += []
+		try:
+			comments += [i['statistics']['commentCount'] for i in response['items']]
+		except:
+			comments += []
+		try:
+			favorites += [i['statistics']['favoriteCount'] for i in response['items']]
+		except:
+			favorites += []
 	
 	df = pd.DataFrame({
 	    'videoId':videoId,
