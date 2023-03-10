@@ -70,25 +70,30 @@ if st.session_state['button'] == True:
 			part='statistics, snippet',
 			id=ids
 		).execute()
+		
+		batch_length = len([i['id'] for i in response['items']])
 
 		videoId += [i['id'] for i in response['items']]
 		channelId += [i['snippet']['channelId'] for i in response['items']]
 		title += [i['snippet']['title'] for i in response['items']]
 		publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
 		description += [i['snippet']['description'] for i in response['items']]
-		views += [i['statistics']['viewCount'] for i in response['items']]
+		try:
+			views += [i['statistics']['viewCount'] for i in response['items']]
+		except:
+			views += [0]*len(batch_length)
 		try:
 			likes += [i['statistics']['likeCount'] for i in response['items']]
 		except:
-			likes += []
+			likes += [0]*len(batch_length)
 		try:
 			comments += [i['statistics']['commentCount'] for i in response['items']]
 		except:
-			comments += []
+			comments += [0]*len(batch_length)
 		try:
 			favorites += [i['statistics']['favoriteCount'] for i in response['items']]
 		except:
-			favorites += []
+			favorites += [0]*len(batch_length)
 	
 	df = pd.DataFrame({
 	    'videoId':videoId,
