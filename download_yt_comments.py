@@ -29,64 +29,58 @@ api_key= st.secrets["api_key"]
 youtube = discovery.build('youtube', 'v3', developerKey=api_key)
 
 
-query = st.text_input("Search YouTube")
-order_options = ['date','rating','title','videoCount','viewCount']
-selected_order = st.selectbox("Select an Order", order_options)
+video_id = st.text_input("Enter a Video ID")
 
 search_btn = st.button("Search!", key='search')
 if st.session_state.get('button') != True:
     st.session_state['button'] = search_btn
 if st.session_state['button'] == True:
 	nextToken = None
-	videoId = []
-	channelId = []
-	title = []
+	commentID = []
+	text = []
+	author = []
 	publishedAt = []
-	description = []
-	views = []
+	updatedAt = []
 	likes = []
-	comments = []
-	favorites = []
+	replyCount = []
+	category = []
+	parent_id = []
 	while True:
-		response_id = youtube.search().list(
-			q=query, 
-			order=selected_order,
-			part='id', 
-			type='video', 
-			maxResults=50, 
-			pageToken=nextToken
-		).execute()
-	
-		ids = [i['id']['videoId'] for i in response_id['items']]
-		response = youtube.videos().list(
-			part='statistics, snippet',
-			id=ids
-		).execute()
+		response = youtube.commentThreads().list(
+			part='id,snippet,replies', 
+			videoId=video_id,
+			pageToken=next_results,
+			maxResults = 100,
+			fields="nextPageToken,items(id,snippet(topLevelComment(snippet(publishedAt,updatedAt,likeCount,textOriginal,authorDisplayName)),totalReplyCount),replies)"
+    		).execute()
 
-		batch_length = len([i['id'] for i in response['items']])
+		batch_length = len([i['id'] for i in response])
 
-		videoId += [i['id'] for i in response['items']]
-		channelId += [i['snippet']['channelId'] for i in response['items']]
-		title += [i['snippet']['title'] for i in response['items']]
-		publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
-		description += [i['snippet']['description'] for i in response['items']]
+		commentID += [i['id'] for i in response]
+		text += [i['snippet']['topLevelComment']['snippet']['textOriginal'] for i in response]
+		author += [i['snippet']['topLevelComment']['snippet']['authorDisplayName'] for i in response]
+		publishedAt += [i['snippet']['topLevelComment']['snippet']['publishedAt'] for i in response]
+		updatedAt += [i['snippet']['topLevelComment']['snippet']['updatedAt'] for i in response]
 		try:
-			views += [i['statistics']['viewCount'] for i in response['items']]
-		except:
-			views += [0]*batch_length
-		try:
-			likes += [i['statistics']['likeCount'] for i in response['items']]
+			likes += [i['snippet']['topLevelComment']['snippet']['likeCount'] for i in response]
 		except:
 			likes += [0]*batch_length
 		try:
-			comments += [i['statistics']['commentCount'] for i in response['items']]
+			replyCount += [i['snippet']['totalReplyCount'] for i in response]
 		except:
-			comments += [0]*batch_length
-		try:
-			favorites += [i['statistics']['favoriteCount'] for i in response['items']]
-		except:
-			favorites += [0]*batch_length
-			
+			replyCount += [0]*batch_length
+		category += ['top level comments']*batch_length
+		parent_id += ['NA']*batch_length
+		
+		for i in response:
+			if i['snippet']['totalReplyCount']>0:
+				commentID += [j['id'] for j in i['replies']['comments']]
+				text += [j['id'] for j in i['replies']['comments']]
+				author += 
+				publishedAt +=
+				updatedAt += 
+				category += ['replies to comments']
+				
 		try:
 			nextToken = response_id['nextPageToken']
 		except:
