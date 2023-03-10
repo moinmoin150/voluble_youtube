@@ -38,7 +38,15 @@ if st.session_state.get('button') != True:
     st.session_state['button'] = search_btn
 if st.session_state['button'] == True:
 	nextToken = None
-	final_response = []
+	videoId = []
+	channelId = []
+	title = []
+	publishedAt = []
+	description = []
+	views = []
+	likes = []
+	comments = []
+	favorites = []
 	while True:
 		response = youtube.search().list(
 			q=query, 
@@ -48,7 +56,6 @@ if st.session_state['button'] == True:
 			maxResults=50, 
 			pageToken=nextToken
 		).execute()
-		final_response += response['items']
 
 		try:
 			nextToken = response['nextPageToken']
@@ -57,24 +64,23 @@ if st.session_state['button'] == True:
 
 		if len(response['items']) > 1000:
 			break
-	st.write('Found ', len(final_response), ' results')
 	
-	ids = [i['id']['videoId'] for i in final_response]
-	response = youtube.videos().list(
-		part='statistics, snippet',
-		id=ids
-	).execute()
+		ids = [i['id']['videoId'] for i in response['items']]
+		response = youtube.videos().list(
+			part='statistics, snippet',
+			id=ids
+		).execute()
 
-	videoId = [i['id'] for i in response['items']]
-	channelId = [i['snippet']['channelId'] for i in response['items']]
-	title = [i['snippet']['title'] for i in response['items']]
-	publishedAt = [i['snippet']['publishedAt'] for i in response['items']]
-	description = [i['snippet']['description'] for i in response['items']]
-	views = [i['statistics']['viewCount'] for i in response['items']]
-	likes = [i['statistics']['likeCount'] for i in response['items']]
-	comments = [i['statistics']['commentCount'] for i in response['items']]
-	favorites = [i['statistics']['favoriteCount'] for i in response['items']]
-
+		videoId += [i['id'] for i in response['items']]
+		channelId += [i['snippet']['channelId'] for i in response['items']]
+		title += [i['snippet']['title'] for i in response['items']]
+		publishedAt += [i['snippet']['publishedAt'] for i in response['items']]
+		description += [i['snippet']['description'] for i in response['items']]
+		views += [i['statistics']['viewCount'] for i in response['items']]
+		likes += [i['statistics']['likeCount'] for i in response['items']]
+		comments += [i['statistics']['commentCount'] for i in response['items']]
+		favorites += [i['statistics']['favoriteCount'] for i in response['items']]
+	
 	df = pd.DataFrame({
 	    'videoId':videoId,
 	    'channelId':channelId,
@@ -87,6 +93,7 @@ if st.session_state['button'] == True:
 	    'comments':comments,
 	    'favorites':favorites
 	})
+	st.write('Found ', len(df), ' results')
 	
 	st.subheader("Preview first 50 rows:")
 	st.dataframe(df.head(50))
